@@ -1,0 +1,17 @@
+# Optional: use with -Dspring.profiles.active=dev to auto-create/update schema (e.g. local run)
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# CORS: allow frontend to call the API (adjust origins for your frontend URL)
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:5173
+      - http://localhost:4173
+      - http://127.0.0.1:3000
+      - http://127.0.0.1:5173
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allow-credentials: true
