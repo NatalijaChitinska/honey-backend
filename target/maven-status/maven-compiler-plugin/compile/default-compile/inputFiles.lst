@@ -11,6 +11,8 @@
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/domain/Order.java
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/domain/OrderItem.java
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/domain/Product.java
+/Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/domain/annotation/CustomPhone.java
+/Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/domain/annotation/ValidPhone.java
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/dto/request/AddToCartRequest.java
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/dto/request/CreateOrderRequest.java
 /Users/natalija.chitinska/cursor-demo/src/main/java/com/honey/shop/dto/request/OrderItemRequest.java

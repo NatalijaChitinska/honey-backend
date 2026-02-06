@@ -20,6 +20,8 @@ public class OrderResponse {
     private String customerName;
     private String customerEmail;
     private String shippingAddress;
+    private String city;
+    private String customerPhone;
     private Order.OrderStatus status;
     private Instant createdAt;
     private Instant updatedAt;

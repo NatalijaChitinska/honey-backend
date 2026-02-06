@@ -65,11 +65,18 @@ public class GlobalExceptionHandler {
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .collect(Collectors.toList());
+        String message = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(err -> err.getDefaultMessage())
+            .findFirst()
+            .orElse("Невалидни податоци.");
+            
         ApiError error = ApiError.builder()
                 .timestamp(Instant.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message("Validation failed")
+                .message(message)
                 .path(request.getRequestURI())
                 .details(details)
                 .build();

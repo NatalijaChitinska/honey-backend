@@ -2,6 +2,7 @@ com/honey/shop/repository/CartRepository.class
 com/honey/shop/service/ProductService.class
 com/honey/shop/mapper/ProductMapper.class
 com/honey/shop/dto/request/UpdateCartItemRequest.class
+com/honey/shop/domain/annotation/CustomPhone.class
 com/honey/shop/dto/response/OrderItemResponse$OrderItemResponseBuilder.class
 com/honey/shop/config/CorsConfig.class
 com/honey/shop/domain/Cart$CartBuilder.class
@@ -35,6 +36,7 @@ com/honey/shop/mapper/CategoryMapper.class
 com/honey/shop/exception/ResourceNotFoundException.class
 com/honey/shop/mapper/OrderMapper.class
 com/honey/shop/domain/OrderItem.class
+com/honey/shop/domain/annotation/ValidPhone.class
 com/honey/shop/repository/OrderRepository.class
 com/honey/shop/dto/request/CreateOrderRequest.class
 com/honey/shop/domain/CartItem.class
