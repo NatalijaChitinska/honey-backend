@@ -3,6 +3,7 @@ package com.honey.shop.service;
 import com.honey.shop.domain.Order;
 import com.honey.shop.domain.OrderItem;
 import com.honey.shop.domain.Product;
+import com.honey.shop.domain.enumerations.EmailTemplate;
 import com.honey.shop.dto.request.CreateOrderRequest;
 import com.honey.shop.exception.BadRequestException;
 import com.honey.shop.exception.ResourceNotFoundException;
@@ -10,14 +11,18 @@ import com.honey.shop.dto.response.OrderResponse;
 import com.honey.shop.mapper.OrderMapper;
 import com.honey.shop.repository.OrderRepository;
 import com.honey.shop.repository.ProductRepository;
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +31,10 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final EmailService emailService;
 
     private static final AtomicLong ORDER_SEQUENCE = new AtomicLong(1);
+    public static final int DELIVERY = 150;
 
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
@@ -41,6 +48,7 @@ public class OrderService {
                 .shippingAddress(request.getShippingAddress())
                 .city(request.getCity())
                 .customerPhone(request.getCustomerPhone())
+                .notes(request.getNotes())
                 .status(Order.OrderStatus.PENDING)
                 .createdAt(now)
                 .updatedAt(now)
@@ -64,8 +72,11 @@ public class OrderService {
         }
 
         order = orderRepository.save(order);
-        // update ordered product total
-        return orderMapper.toResponse(order);
+        var response = orderMapper.toResponse(order);
+
+        sendReceiptToUser(order);
+
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -80,5 +91,64 @@ public class OrderService {
         return orderRepository.findAll().stream()
                 .map(orderMapper::toResponse)
                 .toList();
+    }
+
+    private void sendReceiptToUser(Order order) {
+
+        String itemsText = order.getOrderItems().stream()
+                .map(item -> String.format(
+                        "%s x %d (%s ден.)",
+                        item.getProduct().getName(),
+                        item.getQuantity(),
+                        item.getUnitPrice().toString()
+                ))
+                .collect(Collectors.joining("<br>"));
+
+        BigDecimal total = order.getOrderItems().stream()
+                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int totalQuantity = order.getOrderItems().stream()
+                .mapToInt(OrderItem::getQuantity)
+                .sum();
+
+        HashMap<String, String> content = new HashMap<>();
+        String deliveryHtml = "";
+        if (totalQuantity <=4 ) {
+            total =  total.add(BigDecimal.valueOf(DELIVERY));
+            deliveryHtml = formatDeliveryHtml();
+        }
+        String notes = "";
+        if (order.getNotes() != null && StringUtils.isNotBlank(order.getNotes())){
+            notes = formatNotesHtml(order.getNotes());
+        }
+
+        content.put("name", order.getCustomerName());
+        content.put("order", itemsText);
+        content.put("total", total.toString());
+        content.put("orderNumber", order.getOrderNumber());
+        content.put("address", order.getShippingAddress() + " - " + order.getCity());
+        content.put("phone", order.getCustomerPhone());
+        content.put("deliveryHtml", deliveryHtml);
+        content.put("notes", notes);
+
+        emailService.sendHtmlEmail(content, EmailTemplate.USER_ORDER_RECEIPT, order.getCustomerEmail());
+    }
+
+    private String formatDeliveryHtml() {
+        return String.format(
+                "<p style=\"margin:0;  color:#333;\">" +
+                        "<b>Достава:</b>" +
+                        "<span style=\"float:right; color:#000;\">%s ден.</span>" +
+                        "</p>",
+                BigDecimal.valueOf(DELIVERY));
+    }
+
+    private String formatNotesHtml(String notes) {
+        return String.format(
+                "<p style=\"margin:0; font-size: 14px; color:#333; line-height: 1.6;\">" +
+                        "Забелешки: %s " +
+                        "</p>",
+                notes);
     }
 }

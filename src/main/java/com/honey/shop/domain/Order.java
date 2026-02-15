@@ -53,6 +53,9 @@ public class Order {
     @ValidPhone
     private String customerPhone;
 
+    @Column()
+    private String notes;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

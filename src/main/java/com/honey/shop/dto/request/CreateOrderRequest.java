@@ -40,6 +40,8 @@ public class CreateOrderRequest {
     @ValidPhone
     private String customerPhone;
 
+    private String notes;
+
     @NotEmpty(message = "At least one order item is required")
     @Size(max = 50, message = "Order cannot contain more than 50 items")
     @Valid
