@@ -1,5 +1,6 @@
 package com.honey.shop.domain;
 
+import com.honey.shop.domain.annotation.ValidPhone;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,6 +45,13 @@ public class Order {
 
     @Column(nullable = false, length = 500)
     private String shippingAddress;
+
+    @Column(nullable = false, length = 500)
+    private String city;
+
+    @Column(nullable = false)
+    @ValidPhone
+    private String customerPhone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

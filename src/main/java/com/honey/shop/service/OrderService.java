@@ -39,6 +39,8 @@ public class OrderService {
                 .customerName(request.getCustomerName())
                 .customerEmail(request.getCustomerEmail())
                 .shippingAddress(request.getShippingAddress())
+                .city(request.getCity())
+                .customerPhone(request.getCustomerPhone())
                 .status(Order.OrderStatus.PENDING)
                 .createdAt(now)
                 .updatedAt(now)
@@ -62,6 +64,7 @@ public class OrderService {
         }
 
         order = orderRepository.save(order);
+        // update ordered product total
         return orderMapper.toResponse(order);
     }
 

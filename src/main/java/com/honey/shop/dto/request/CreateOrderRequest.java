@@ -1,5 +1,6 @@
 package com.honey.shop.dto.request;
 
+import com.honey.shop.domain.annotation.ValidPhone;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -18,18 +19,26 @@ import java.util.List;
 @Builder
 public class CreateOrderRequest {
 
-    @NotBlank(message = "Customer name is required")
+    @NotBlank(message = "Ова поле е задолжително")
     @Size(max = 200)
     private String customerName;
 
-    @NotBlank(message = "Customer email is required")
-    @Email
+    @NotBlank(message = "Ова поле е задолжително")
+    @Email(message = "Внесете валидна е-пошта!")
     @Size(max = 255)
     private String customerEmail;
 
-    @NotBlank(message = "Shipping address is required")
+    @NotBlank(message = "Ова поле е задолжително")
     @Size(max = 500)
     private String shippingAddress;
+
+    @NotBlank(message = "Ова поле е задолжително")
+    @Size(max = 500)
+    private String city;
+
+    @NotBlank(message = "Ова поле е задолжително")
+    @ValidPhone
+    private String customerPhone;
 
     @NotEmpty(message = "At least one order item is required")
     @Size(max = 50, message = "Order cannot contain more than 50 items")

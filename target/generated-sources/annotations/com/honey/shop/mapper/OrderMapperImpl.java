@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-02-03T23:10:29+0100",
+    date = "2026-02-06T20:36:16+0100",
     comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -31,6 +31,8 @@ public class OrderMapperImpl implements OrderMapper {
         orderResponse.customerName( order.getCustomerName() );
         orderResponse.customerEmail( order.getCustomerEmail() );
         orderResponse.shippingAddress( order.getShippingAddress() );
+        orderResponse.city( order.getCity() );
+        orderResponse.customerPhone( order.getCustomerPhone() );
         orderResponse.status( order.getStatus() );
         orderResponse.createdAt( order.getCreatedAt() );
         orderResponse.updatedAt( order.getUpdatedAt() );

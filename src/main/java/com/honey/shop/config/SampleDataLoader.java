@@ -47,64 +47,26 @@ public class SampleDataLoader implements ApplicationRunner {
                 .build());
 
         Category acacia = categoryRepository.save(Category.builder()
-                .name("Acacia")
-                .slug("acacia")
-                .description("Light, mild honey from acacia flowers")
-                .build());
-
-        Category chestnut = categoryRepository.save(Category.builder()
-                .name("Chestnut")
-                .slug("chestnut")
-                .description("Strong, distinctive honey from chestnut trees")
+                .name("Ливадски")
+                .slug("meadow")
+                .description("Light, mild meadow honey")
                 .build());
 
         List<Product> products = List.of(
                 Product.builder()
-                        .name("Forest Honey 250g")
-                        .description("Pure forest honey with a deep, woody flavour. Ideal for tea and baking.")
-                        .price(new BigDecimal("8.50"))
+                        .name("Планински мед 950г")
+                        .description("Планински интензивен мед, богат со минерали")
+                        .price(new BigDecimal("600"))
                         .stock(50)
                         .category(forest)
                         .active(true)
                         .build(),
                 Product.builder()
-                        .name("Forest Honey 500g")
-                        .description("Our best-selling forest honey in a larger jar.")
-                        .price(new BigDecimal("15.00"))
+                        .name("Ливадски Мед 950г")
+                        .description("Нежен и ароматичен, со природна жолта боја")
+                        .price(new BigDecimal("600"))
                         .stock(30)
                         .category(forest)
-                        .active(true)
-                        .build(),
-                Product.builder()
-                        .name("Acacia Honey 250g")
-                        .description("Light and delicate acacia honey, perfect for sweetening without overpowering.")
-                        .price(new BigDecimal("9.00"))
-                        .stock(40)
-                        .category(acacia)
-                        .active(true)
-                        .build(),
-                Product.builder()
-                        .name("Acacia Honey 500g")
-                        .description("Premium acacia honey from selected sources.")
-                        .price(new BigDecimal("16.50"))
-                        .stock(25)
-                        .category(acacia)
-                        .active(true)
-                        .build(),
-                Product.builder()
-                        .name("Chestnut Honey 250g")
-                        .description("Bold chestnut honey with a slightly bitter note. Great with cheese.")
-                        .price(new BigDecimal("10.00"))
-                        .stock(35)
-                        .category(chestnut)
-                        .active(true)
-                        .build(),
-                Product.builder()
-                        .name("Chestnut Honey 500g")
-                        .description("Intense chestnut honey for true connoisseurs.")
-                        .price(new BigDecimal("18.00"))
-                        .stock(20)
-                        .category(chestnut)
                         .active(true)
                         .build()
         );
