@@ -3,6 +3,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  mail:
+    port: 1025
+    host: localhost
+    username: no-reply@ormed.com
+    password:
+    properties:
+      mail:
+        smtp:
+          port: 1025
+          auth: false
+          starttls:
+            enable: false
 
 # CORS: allow frontend to call the API (adjust origins for your frontend URL)
 app:
