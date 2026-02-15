@@ -13,6 +13,17 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.H2Dialect
+  mail:
+    port: 1025
+    host: localhost
+    username: no-reply@ormed.com
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 # CORS: allow frontend to call the API (adjust origins for your frontend URL)
 app:
