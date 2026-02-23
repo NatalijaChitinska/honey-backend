@@ -19,6 +19,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.honey.shop.util.Constants.*;
+
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -36,7 +38,7 @@ public class CartService {
             return createNewCart();
         }
         Cart cart = cartRepository.findByToken(token.trim())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart", token));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_CART, token));
         return cartMapper.toResponse(cart);
     }
 
@@ -46,7 +48,7 @@ public class CartService {
     @Transactional(readOnly = true)
     public CartResponse getByToken(String token) {
         Cart cart = cartRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart", token));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_CART, token));
         return cartMapper.toResponse(cart);
     }
 
@@ -54,7 +56,7 @@ public class CartService {
     public CartResponse addItem(String token, AddToCartRequest request) {
         Cart cart = findCartByToken(token);
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product", request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_PRODUCT, request.getProductId()));
 
         Optional<CartItem> existing = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
@@ -90,7 +92,7 @@ public class CartService {
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getId().equals(itemId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item", itemId));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_CART_ITEM, itemId));
 
         if (item.getProduct().getStock() < request.getQuantity()) {
             throw new BadRequestException("Insufficient stock for product: " + item.getProduct().getName());
@@ -107,7 +109,7 @@ public class CartService {
         Cart cart = findCartByToken(token);
         boolean removed = cart.getItems().removeIf(item -> item.getId().equals(itemId));
         if (!removed) {
-            throw new ResourceNotFoundException("Cart item", itemId);
+            throw new ResourceNotFoundException(RESOURCE_CART_ITEM, itemId);
         }
         cart.setUpdatedAt(Instant.now());
         cart = cartRepository.save(cart);
@@ -128,7 +130,7 @@ public class CartService {
             throw new BadRequestException("Cart token is required. Call GET /api/carts first to obtain a token.");
         }
         return cartRepository.findByToken(token.trim())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart", token));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_CART, token));
     }
 
     private CartResponse createNewCart() {

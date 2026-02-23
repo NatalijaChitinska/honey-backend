@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.honey.shop.util.Constants.RESOURCE_PRODUCT;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,7 +36,7 @@ public class ProductService {
 
     public ProductResponse findById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", id));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_PRODUCT, id));
         return productMapper.toResponse(product);
     }
 }

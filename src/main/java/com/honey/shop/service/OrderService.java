@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import static com.honey.shop.util.Constants.*;
+import static org.apache.commons.lang3.StringUtils.*;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -82,7 +85,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse findById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_ORDER, id));
         return orderMapper.toResponse(order);
     }
 
@@ -113,14 +116,20 @@ public class OrderService {
                 .sum();
 
         HashMap<String, String> content = new HashMap<>();
-        String deliveryHtml = "";
+        String deliveryHtml = EMPTY;
+        StringBuilder notes = new StringBuilder();
+        String deliveryNotes = EMPTY;
+
         if (totalQuantity <=4 ) {
-            total =  total.add(BigDecimal.valueOf(DELIVERY));
-            deliveryHtml = formatDeliveryHtml();
+            if (!order.getCity().contains(CITY_BEROVO)) {
+                total =  total.add(BigDecimal.valueOf(DELIVERY));
+                deliveryHtml = formatDeliveryHtml();
+            } else{
+                deliveryNotes = DELIVERY_NOTES_STRING;
+            }
         }
-        String notes = "";
         if (order.getNotes() != null && StringUtils.isNotBlank(order.getNotes())){
-            notes = formatNotesHtml(order.getNotes());
+            notes.append(formatNotesHtml(order.getNotes(), deliveryNotes));
         }
 
         content.put("name", order.getCustomerName());
@@ -130,25 +139,20 @@ public class OrderService {
         content.put("address", order.getShippingAddress() + " - " + order.getCity());
         content.put("phone", order.getCustomerPhone());
         content.put("deliveryHtml", deliveryHtml);
-        content.put("notes", notes);
+        content.put("notes", notes.toString().isEmpty() ? deliveryNotes: notes.toString());
 
         emailService.sendHtmlEmail(content, EmailTemplate.USER_ORDER_RECEIPT, order.getCustomerEmail());
     }
 
     private String formatDeliveryHtml() {
         return String.format(
-                "<p style=\"margin:0;  color:#333;\">" +
-                        "<b>Достава:</b>" +
-                        "<span style=\"float:right; color:#000;\">%s ден.</span>" +
-                        "</p>",
+                DELIVERY_HTML,
                 BigDecimal.valueOf(DELIVERY));
     }
 
-    private String formatNotesHtml(String notes) {
+    private String formatNotesHtml(String notes, String deliveryNotes) {
         return String.format(
-                "<p style=\"margin:0; font-size: 14px; color:#333; line-height: 1.6;\">" +
-                        "Забелешки: %s " +
-                        "</p>",
-                notes);
+                NOTES_HTML,
+                notes, deliveryNotes);
     }
 }
