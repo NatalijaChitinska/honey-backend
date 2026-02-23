@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.honey.shop.util.Constants.RESOURCE_CATEGORY;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,7 +30,7 @@ public class CategoryService {
 
     public CategoryResponse findById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", id));
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_CATEGORY, id));
         return categoryMapper.toResponse(category);
     }
 }
