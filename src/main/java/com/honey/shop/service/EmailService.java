@@ -1,12 +1,17 @@
 package com.honey.shop.service;
 
+import com.honey.shop.domain.Order;
+import com.honey.shop.domain.OrderCreatedEvent;
 import com.honey.shop.domain.enumerations.EmailTemplate;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import org.thymeleaf.context.Context;
@@ -58,6 +63,35 @@ public class EmailService {
                             }
                         });
         thread.start();
+    }
+
+    @Async
+    @EventListener
+    public void handleOrderCreatedEvent(OrderCreatedEvent event) {
+        Order order = event.getOrder();
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(sender); // Matches your application.yml username
+        message.setTo("natalijachitinska@gmail.com"); // The admin inbox
+        message.setSubject("New Order Received! #" + order.getId());
+
+        String emailBody = String.format(
+                "Hello Admin,\n\nA new order has been placed in the system.\n\n" +
+                        "Order ID: %d\n" +
+                        "Customer: %s\n" +
+                        "Items: %s\n\n" +
+                        "Please check the admin panel to process this request.",
+                order.getId(), order.getCustomerName(),
+                order.getOrderItems().stream()
+                        .map(item -> item.getProduct().getName() + " x " + item.getQuantity())
+                        .reduce((a, b) -> a + ", " + b)
+                        .orElse("No items")
+        );
+
+        message.setText(emailBody);
+
+        // Sends the mail over port 1025 to Mailpit
+        javaMailSender.send(message);
     }
 
     private String loadTemplate(String fileName) throws IOException {

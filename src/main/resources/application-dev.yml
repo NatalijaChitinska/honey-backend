@@ -1,8 +1,17 @@
 # Optional: use with -Dspring.profiles.active=dev to auto-create/update schema (e.g. local run)
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/honey_dev
+    username: postgres
+    password: postgres
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+    show-sql: true
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
   mail:
     port: 1025
     host: localhost
