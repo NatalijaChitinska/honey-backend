@@ -5,13 +5,14 @@ import com.honey.shop.domain.OrderCreatedEvent;
 import com.honey.shop.domain.enumerations.EmailTemplate;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import org.thymeleaf.context.Context;
@@ -20,21 +21,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final String sender;
+    private final String adminNotificationEmail;
     private static final String EMAIL_REGEX =
             "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     public EmailService(JavaMailSender javaMailSender,
-                        @Value("${spring.mail.username}") String sender) {
+                        @Value("${spring.mail.username}") String sender,
+                        @Value("${app.mail.admin-notification-email:}") String adminNotificationEmail) {
         this.javaMailSender = javaMailSender;
         this.sender = sender;
+        this.adminNotificationEmail = adminNotificationEmail == null || adminNotificationEmail.isBlank()
+                ? sender
+                : adminNotificationEmail;
     }
 
+//    @Async("mailTaskExecutor")
     public void sendHtmlEmail(
             Map<String, String> content, EmailTemplate emailTemplate, String email) {
         Thread thread =
@@ -65,23 +73,23 @@ public class EmailService {
         thread.start();
     }
 
-    @Async
     @EventListener
     public void handleOrderCreatedEvent(OrderCreatedEvent event) {
         Order order = event.getOrder();
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(sender); // Matches your application.yml username
-        message.setTo("natalijachitinska@gmail.com"); // The admin inbox
+        message.setFrom(sender);
+        message.setTo(adminNotificationEmail);
         message.setSubject("New Order Received! #" + order.getId());
 
         String emailBody = String.format(
-                "Hello Admin,\n\nA new order has been placed in the system.\n\n" +
+                "Здраво Админ,\n\nНаправена е нова нарачка\n\n" +
                         "Order ID: %d\n" +
-                        "Customer: %s\n" +
-                        "Items: %s\n\n" +
-                        "Please check the admin panel to process this request.",
-                order.getId(), order.getCustomerName(),
+                        "Име: %s\n" +
+                        "Тел: %s\n" +
+                        "Производи: %s\n\n" +
+                        "Ве молиме проверете го админ панелот за да ја обработите оваа нарачка.",
+                order.getId(), order.getCustomerName(), order.getCustomerPhone(),
                 order.getOrderItems().stream()
                         .map(item -> item.getProduct().getName() + " x " + item.getQuantity())
                         .reduce((a, b) -> a + ", " + b)
@@ -90,8 +98,11 @@ public class EmailService {
 
         message.setText(emailBody);
 
-        // Sends the mail over port 1025 to Mailpit
-        javaMailSender.send(message);
+        try {
+            javaMailSender.send(message);
+        } catch (MailException e) {
+            log.error("Failed to send admin order notification for order {}: {}", order.getId(), e.getMessage());
+        }
     }
 
     private String loadTemplate(String fileName) throws IOException {

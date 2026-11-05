@@ -46,7 +46,7 @@ public class OrderService {
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
         Instant now = Instant.now();
-        String orderNumber = "ORD-" + now.getEpochSecond() + "-" + String.format("%04d", ORDER_SEQUENCE.getAndIncrement());
+        String orderNumber = "ORD-" + String.format("%04d", ORDER_SEQUENCE.getAndIncrement());
 
         Order order = Order.builder()
                 .orderNumber(orderNumber)
