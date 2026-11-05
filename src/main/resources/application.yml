@@ -11,6 +11,20 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
 
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
   jpa:
     hibernate:
       ddl-auto: validate
@@ -30,3 +44,6 @@ app:
     allowed-origins: http://localhost:3000,http://localhost:5173,http://localhost:4173,http://127.0.0.1:3000,http://127.0.0.1:5173
     allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
     allow-credentials: true
+  mail:
+    # Inbox that receives the "new order" admin notification. Falls back to the mail username if unset.
+    admin-notification-email: ${ADMIN_NOTIFICATION_EMAIL:}

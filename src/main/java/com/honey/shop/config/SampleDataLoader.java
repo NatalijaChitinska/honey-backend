@@ -21,7 +21,7 @@ import java.util.List;
  * Runs only if no categories exist yet.
  */
 @Component
-@Profile("dev")
+@Profile("local")
 @Order(1)
 @RequiredArgsConstructor
 @Slf4j

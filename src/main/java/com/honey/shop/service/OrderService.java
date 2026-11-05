@@ -1,6 +1,7 @@
 package com.honey.shop.service;
 
 import com.honey.shop.domain.Order;
+import com.honey.shop.domain.OrderCreatedEvent;
 import com.honey.shop.domain.OrderItem;
 import com.honey.shop.domain.Product;
 import com.honey.shop.domain.enumerations.EmailTemplate;
@@ -13,6 +14,7 @@ import com.honey.shop.repository.OrderRepository;
 import com.honey.shop.repository.ProductRepository;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +38,15 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final EmailService emailService;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private static final AtomicLong ORDER_SEQUENCE = new AtomicLong(1);
     public static final int DELIVERY = 150;
 
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
         Instant now = Instant.now();
-        String orderNumber = "ORD-" + now.getEpochSecond() + "-" + String.format("%04d", ORDER_SEQUENCE.getAndIncrement());
+        String orderNumber = "ORD-" + String.format("%04d", ORDER_SEQUENCE.getAndIncrement());
 
         Order order = Order.builder()
                 .orderNumber(orderNumber)
@@ -78,7 +82,12 @@ public class OrderService {
         var response = orderMapper.toResponse(order);
 
         sendReceiptToUser(order);
-
+        eventPublisher.publishEvent(new OrderCreatedEvent(order));
+        for (var item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() - item.getQuantity());
+            productRepository.save(product);
+        }
         return response;
     }
 
