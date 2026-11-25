@@ -22,7 +22,7 @@ public class ContactMessage {
     @Column(name = "full_name", nullable = false, length = 200)
     private String fullName;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String email;
 
     @Column(name = "phone_number", nullable = false, length = 50)

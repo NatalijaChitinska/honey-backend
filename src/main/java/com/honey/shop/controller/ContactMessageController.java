@@ -1,6 +1,5 @@
 package com.honey.shop.controller;
 
-import com.honey.shop.domain.ContactMessage;
 import com.honey.shop.dto.request.ContactMessageRequest;
 import com.honey.shop.dto.response.ApiResponse;
 import com.honey.shop.dto.response.ContactMessageResponse;
